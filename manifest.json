@@ -1,7 +1,7 @@
 {
-    "manifest_version": 2,
-    "name": "YouTube MrBeastify",
-    "version": "1.4",
+    "manifest_version": 3,
+    "name": "Reactify-XQC",
+    "version": "1.0",
     "icons": {
         "16": "icons/icon-16.png",
         "32": "icons/icon-32.png",
@@ -9,17 +9,24 @@
         "64": "icons/icon-64.png",
         "96": "icons/icon-96.png"
     },
-    "description": "Modify YouTube thumbnails to include MrBeast",
-    "permissions": [
+    "description": "Modify YouTube thumbnails to include XQC and add a reaction box to the video player",
+    "host_permissions": [
         "https://www.youtube.com/*"
     ],
     "content_scripts": [{
         "matches": ["https://www.youtube.com/*"],
-        "js": ["mrbeastify.js"],
+        "js": ["reactify-XQC.js"],
         "run_at": "document_idle"
     }],
-    "web_accessible_resources": [
-        "images/*.png",
-        "images/*.json"
-    ]
+    "web_accessible_resources": [{
+        "resources": [
+            "images/*.png",
+            "images/*.json",
+            "images/*.gif",
+            "videos/*.mp4"
+        ],
+        "matches": [
+            "*://*/*"
+        ]
+    }]
 }

@@ -1,6 +1,102 @@
 const imagesPath = "images/";
+const videoURLIdentifiers = ["cUIiHiI", "FWmyAa7", "yJlMcvO", "aiq8ToG", "oi5BL4z", "hzhhnXe", "tZZWzlA"];
 var useAlternativeImages
 var flipBlacklist
+
+function ApplyReactionBox(){
+  const topRow = document.getElementById('top-row'); //check if page on youtube is a video page
+  if (topRow) {
+    const reactionBox = document.createElement('video');   
+    let vidURLIndex = Math.floor(Math.random() * 6); //get a random video
+    const corner = Math.floor(Math.random() * 4) + 1; //get a random corner
+    const videoIdentifier = videoURLIdentifiers[vidURLIndex];
+    const videoURL = `https://i.imgur.com/${videoIdentifier}.mp4`;
+    reactionBox.src = videoURL;
+    reactionBox.style.position = 'relative';
+    reactionBox.autoplay = true;  
+    if (vidURLIndex == 0){ //For the first video which will leave the video paused at the end
+      reactionBox.loop = false;
+    }
+    else{
+      reactionBox.loop = true;
+
+    }
+    window.onload = function() {
+      adjustReactionBoxSizeAndPosition();
+    };
+    
+ 
+    // Replace the "top-row" element with the new video element
+    const youtubeVideoOnPage = document.getElementsByClassName("video-stream html5-main-video")[0];
+    const youtubeMoviePlayer = document.getElementById("movie_player")
+
+    if(youtubeVideoOnPage) {
+        const parentElement = youtubeVideoOnPage.parentElement;
+        reactionBox.style.width = (youtubeMoviePlayer.clientWidth * 0.25) +'px';
+        parentElement.insertBefore(reactionBox, youtubeVideoOnPage.nextSibling);
+        positionReactionBoxRandomCorner(corner);
+
+        document.addEventListener('fullscreenchange', adjustReactionBoxSizeAndPosition);
+        youtubeVideoOnPage.addEventListener('play', handlePlayToggle);
+        youtubeVideoOnPage.addEventListener('pause', handlePlayToggle);
+
+        function handleResize(entries) { //Whenever the video player changes size adjust the reaction box
+          for (let entry of entries) {
+            adjustReactionBoxSizeAndPosition();
+          }
+        }
+        const resizeObserver = new ResizeObserver(handleResize);
+        resizeObserver.observe(youtubeVideoOnPage);
+    }
+    else {
+        console.log('"video-stream html5-main-video" not found.');
+    }
+
+
+    function adjustReactionBoxSizeAndPosition() {
+      reactionBox.style.width = (youtubeMoviePlayer.clientWidth * 0.25) +'px';
+      positionReactionBoxRandomCorner(corner);
+    }
+
+    function handlePlayToggle() {
+      if (youtubeVideoOnPage.paused) {
+        reactionBox.pause();
+      } else {
+        reactionBox.play();
+      }
+  }
+    
+    function positionReactionBoxRandomCorner(corner) {
+      switch(corner) {
+          case 1:
+              //TOP LEFT
+              reactionBox.style.left = '0%';
+              reactionBox.style.top = '0%';
+              break;
+          case 2:
+             //TOP RIGHT
+              reactionBox.style.left = '75%';
+              reactionBox.style.top = '0%';
+              break;
+          case 3: //BOTTOM LEFT
+              reactionBox.style.left = '0%';
+              reactionBox.style.top = (youtubeMoviePlayer.clientHeight - reactionBox.clientHeight) + 'px';
+              break;
+          case 4: //BOTTOM RIGHT
+            reactionBox.style.left = '75%';
+            reactionBox.style.top = (youtubeMoviePlayer.clientHeight - reactionBox.clientHeight) + 'px';
+            break;
+          } 
+      }
+
+
+  }
+  else {
+    console.log('Element with id="top-row" not found.');
+  }
+}
+
+
 
 // Apply the overlay
 function applyOverlay(thumbnailElement, overlayImageURL, flip = false) {
@@ -88,6 +184,7 @@ function getRandomImageFromDirectory() {
 // Checks if an image exists in the image folder
 async function checkImageExistence(index) {
   const testedURL = getImageURL(index)
+  console.log(index)
 
   return fetch(testedURL)
     .then(() => {
@@ -145,7 +242,7 @@ function GetFlipBlocklist() {
       blacklistStatus = "No flip blacklist found. Proceeding without it."
     });
 }
-
+ApplyReactionBox()
 GetFlipBlocklist()
 
 getHighestImageIndex()
