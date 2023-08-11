@@ -3,100 +3,99 @@ const videoURLIdentifiers = ["cUIiHiI", "FWmyAa7", "yJlMcvO", "aiq8ToG", "oi5BL4
 var useAlternativeImages
 var flipBlacklist
 
-function ApplyReactionBox(){
-  const topRow = document.getElementById('top-row'); //check if page on youtube is a video page
-  if (topRow) {
-    const reactionBox = document.createElement('video');   
-    let vidURLIndex = Math.floor(Math.random() * 6); //get a random video
-    const corner = Math.floor(Math.random() * 4) + 1; //get a random corner
-    const videoIdentifier = videoURLIdentifiers[vidURLIndex];
-    const videoURL = `https://i.imgur.com/${videoIdentifier}.mp4`;
+function ApplyReactionBox(youtubeVideoOnPage){
+
+  function setupVideoObserver() {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'src' && youtubeVideoOnPage.src) {
+              setupNewReactionBox();
+            }
+        });
+    });
+  
+    observer.observe(youtubeVideoOnPage, {
+        attributes: true,
+        attributeFilter: ['src']
+    });
+  }
+  function setupNewReactionBox(){
+    vidURLIndex = Math.floor(Math.random() * 6); //get a random video
+    corner = Math.floor(Math.random() * 4) + 1; //get a random corner
+    videoIdentifier = videoURLIdentifiers[vidURLIndex];
+    videoURL = `https://i.imgur.com/${videoIdentifier}.mp4`;
     reactionBox.src = videoURL;
-    reactionBox.style.position = 'relative';
-    reactionBox.autoplay = true;  
-    if (vidURLIndex == 0){ //For the first video which will leave the video paused at the end
-      reactionBox.loop = false;
-    }
-    else{
-      reactionBox.loop = true;
-
-    }
-    window.onload = function() {
-      adjustReactionBoxSizeAndPosition();
-    };
-    
- 
-    // Replace the "top-row" element with the new video element
-    const youtubeVideoOnPage = document.getElementsByClassName("video-stream html5-main-video")[0];
-    const youtubeMoviePlayer = document.getElementById("movie_player")
-
-    if(youtubeVideoOnPage) {
-        const parentElement = youtubeVideoOnPage.parentElement;
-        reactionBox.style.width = (youtubeMoviePlayer.clientWidth * 0.25) +'px';
-        parentElement.insertBefore(reactionBox, youtubeVideoOnPage.nextSibling);
-        positionReactionBoxRandomCorner(corner);
-
-        document.addEventListener('fullscreenchange', adjustReactionBoxSizeAndPosition);
-        youtubeVideoOnPage.addEventListener('play', handlePlayToggle);
-        youtubeVideoOnPage.addEventListener('pause', handlePlayToggle);
-
-        function handleResize(entries) { //Whenever the video player changes size adjust the reaction box
-          for (let entry of entries) {
-            adjustReactionBoxSizeAndPosition();
-          }
-        }
-        const resizeObserver = new ResizeObserver(handleResize);
-        resizeObserver.observe(youtubeVideoOnPage);
-    }
-    else {
-        console.log('"video-stream html5-main-video" not found.');
-    }
-
-
-    function adjustReactionBoxSizeAndPosition() {
-      reactionBox.style.width = (youtubeMoviePlayer.clientWidth * 0.25) +'px';
-      positionReactionBoxRandomCorner(corner);
-    }
-
-    function handlePlayToggle() {
-      if (youtubeVideoOnPage.paused) {
-        reactionBox.pause();
-      } else {
-        reactionBox.play();
-      }
+    adjustReactionBoxSizeAndPosition();
   }
-    
-    function positionReactionBoxRandomCorner(corner) {
-      switch(corner) {
-          case 1:
-              //TOP LEFT
-              reactionBox.style.left = '0%';
-              reactionBox.style.top = '0%';
-              break;
-          case 2:
-             //TOP RIGHT
-              reactionBox.style.left = '75%';
-              reactionBox.style.top = '0%';
-              break;
-          case 3: //BOTTOM LEFT
-              reactionBox.style.left = '0%';
-              reactionBox.style.top = (youtubeMoviePlayer.clientHeight - reactionBox.clientHeight) + 'px';
-              break;
-          case 4: //BOTTOM RIGHT
-            reactionBox.style.left = '75%';
-            reactionBox.style.top = (youtubeMoviePlayer.clientHeight - reactionBox.clientHeight) + 'px';
-            break;
-          } 
-      }
+
+  const reactionBox = document.createElement('video');   
+  let vidURLIndex = Math.floor(Math.random() * 6); //get a random video
+  let corner = Math.floor(Math.random() * 4) + 1; //get a random corner
+  let videoIdentifier = videoURLIdentifiers[vidURLIndex];
+  let videoURL = `https://i.imgur.com/${videoIdentifier}.mp4`;
+  reactionBox.src = videoURL;
+  reactionBox.style.position = 'relative';
+  reactionBox.autoplay = true;  
+  reactionBox.loop = true;
+
+  setupVideoObserver();
+  
+  const parentElement = youtubeVideoOnPage.parentElement;
+  reactionBox.style.width = (youtubeVideoOnPage.clientWidth * 0.25) +'px';
+  parentElement.insertBefore(reactionBox, youtubeVideoOnPage.nextSibling);
+  positionReactionBoxRandomCorner(corner);
+
+  youtubeVideoOnPage.addEventListener('play', handlePlayToggle);
+  youtubeVideoOnPage.addEventListener('pause', handlePlayToggle);
+
+  const resizeObserver = new ResizeObserver(adjustReactionBoxSizeAndPosition);
+  resizeObserver.observe(youtubeVideoOnPage);
+  resizeObserver.observe(reactionBox);
 
 
+
+
+  function adjustReactionBoxSizeAndPosition() {
+    console.log("resize")
+    reactionBox.style.width = (youtubeVideoOnPage.clientWidth * 0.25) +'px';
+    positionReactionBoxRandomCorner(corner);
   }
-  else {
-    console.log('Element with id="top-row" not found.');
-  }
+
+  function handlePlayToggle() {
+    if (youtubeVideoOnPage.paused) {
+      reactionBox.pause();
+    } else {
+      reactionBox.play();
+    }
 }
+  
+  function positionReactionBoxRandomCorner(corner) {
+    switch(corner) {
+        case 1:
+            console.log("TOP LEFT")//TOP LEFT
+            reactionBox.style.left = '0%';
+            reactionBox.style.top = '0%';
+            break;
+        case 2:
+          console.log("TOP RIGHT")//TOP RIGHT
+            reactionBox.style.left = '75%';
+            reactionBox.style.top = '0%';
+            break;
+        case 3: 
+        console.log("BOTTOM LEFT")//BOTTOM LEFT
+            reactionBox.style.left = '0%';
+            reactionBox.style.top = (youtubeVideoOnPage.clientHeight - reactionBox.clientHeight) + 'px';
+            break;
+        case 4:
+          console.log("BOTTOM RIGHT")
+          reactionBox.style.left = '75%';
+          reactionBox.style.top = (youtubeVideoOnPage.clientHeight - reactionBox.clientHeight) + 'px';
+          break;
+        } 
+    }
 
 
+}
 
 // Apply the overlay
 function applyOverlay(thumbnailElement, overlayImageURL, flip = false) {
@@ -131,7 +130,7 @@ function applyOverlayToThumbnails() {
   // Apply overlay to each thumbnail
   thumbnailElements.forEach((thumbnailElement) => {
     // Apply overlay and add to processed thumbnails
-    let loops = Math.random() > 0.001 ? 1 : 20; // Easter egg
+    let loops = Math.random() > 0.001 ? 1 : 6; // Easter egg
 
     for (let i = 0; i < loops; i++) {
       // Get overlay image URL from your directory
@@ -242,13 +241,22 @@ function GetFlipBlocklist() {
       blacklistStatus = "No flip blacklist found. Proceeding without it."
     });
 }
-ApplyReactionBox()
-GetFlipBlocklist()
+const checkForVideo = setInterval(function() {
+const youtubeVideoOnPage = document.querySelector('video.video-stream.html5-main-video');
+  if (youtubeVideoOnPage) {
+      console.log('Video element found:', youtubeVideoOnPage);
+      clearInterval(checkForVideo);
+      ApplyReactionBox(youtubeVideoOnPage);
+  }
+}, 1000);  // Check every 1 second
+
+
+GetFlipBlocklist();
 
 getHighestImageIndex()
   .then(() => {
     setInterval(applyOverlayToThumbnails, 100);
     console.log(
-      "MrBeastify Loaded Successfully, " + highestImageIndex + " images detected. " + blacklistStatus
+      "Reactify-XQC Loaded Successfully, " + highestImageIndex + " images detected. " + blacklistStatus
     );
   })
